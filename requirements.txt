@@ -14,6 +14,7 @@ invoke==1.4.1
 pytest==5.3.4
 mypy==0.782
 smart-open==4.0.1
+mwparserfromhell==0.6
 
 # scraping
 lxml==4.5.2

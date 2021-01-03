@@ -1,11 +1,16 @@
 import argparse
+import csv
 import re
+from collections import Counter
+from functools import partial, reduce
 from io import StringIO
 from itertools import islice
 from typing import Iterator
 
+import mwparserfromhell
 from lxml import etree
 from smart_open import smart_open
+from tqdm import tqdm
 
 RE_START = re.compile("\s+<page>$")
 RE_END = re.compile("\s+</page>$")
@@ -34,6 +39,38 @@ def parse_page(pages: Iterator[str]) -> Iterator[dict]:
         }
 
 
+def parse_md(iterator: Iterator[dict]) -> Iterator[str]:
+    for item in iterator:
+        yield mwparserfromhell.parse(item["text"]).strip_code()
+
+
+def parse_text(iter: Iterator[str]) -> Iterator[str]:
+    for item in iter:
+        for word in RE_WORD.findall(item):
+            yield word.lower()
+
+
+RE_WORD = re.compile(r"\w+")
+
+
+def aggregate_words(words: Iterator[str]) -> Counter:
+    counter = Counter()
+    count = 0
+    for word in words:
+        counter[word] += 1
+        count += 1
+
+    return counter, count
+
+
+# from https://www.geeksforgeeks.org/function-composition-in-python/
+def composite_function(*func):
+    def compose(f, g):
+        return lambda x: f(g(x))
+
+    return reduce(compose, func, lambda x: x)
+
+
 def parse_args(description: str):
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("input_file", help="input file")
@@ -41,12 +78,31 @@ def parse_args(description: str):
     parser.add_argument(
         "-l", "--limit", type=int, default=None, help="set limit on input arguements"
     )
+    parser.add_argument(
+        "-m", "--min", type=int, default=0, help="minimum count exported"
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args("Parses wiki xml file")
-    with smart_open(args.input_file, encoding="utf-8") as fh:
-        for blob in parse_page(parse_xml(islice(fh, args.limit))):
-            print(blob)
-            print("#" * 40)
+    parse = composite_function(
+        *reversed(
+            [
+                lambda x: islice(x, args.limit),
+                tqdm,
+                parse_xml,
+                parse_page,
+                parse_md,
+                parse_text,
+                aggregate_words,
+            ]
+        )
+    )
+    with smart_open(args.input_file, encoding="utf-8") as input:
+        with smart_open(args.output_file, "w", encoding="utf-8") as output:
+            counter, total_count = parse(input)
+            csv_writer = csv.writer(output)
+            csv_writer.writerow(["word", "count", "fraction"])
+            for word, count in counter.items():
+                csv_writer.writerow([word, count, 1.0 * count / total_count])

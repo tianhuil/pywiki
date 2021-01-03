@@ -90,9 +90,9 @@ if __name__ == "__main__":
         *reversed(
             [
                 lambda x: islice(x, args.limit),
-                tqdm,
                 parse_xml,
                 parse_page,
+                tqdm,
                 parse_md,
                 parse_text,
                 aggregate_words,

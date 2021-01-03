@@ -1,0 +1,17 @@
+{
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true,
+    "python.venvPath": "env/",
+    "[python]": {
+      "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+      }
+    },
+    "files.watcherExclude": {
+      "**/.git/objects/**": true,
+      "**/.git/subtree-cache/**": true,
+      "**/node_modules/**": true,
+      "**/env": true,
+      "**/.hg/store/**": true
+    }
+  }

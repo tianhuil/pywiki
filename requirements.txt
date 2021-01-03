@@ -1,0 +1,23 @@
+# Setup
+wheel
+
+# interactive Python
+ipykernel==5.3.4
+ipython==7.16.1
+jupyter==1.0.0
+
+# utilities
+tqdm==4.48.2
+black
+python-dotenv==0.10.3
+invoke==1.4.1
+pytest==5.3.4
+mypy==0.782
+smart-open==4.0.1
+
+# scraping
+lxml==4.5.2
+beautifulsoup4==4.9.3
+
+# distributed computing
+ray==1.1.0

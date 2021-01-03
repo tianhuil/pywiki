@@ -105,4 +105,5 @@ if __name__ == "__main__":
             csv_writer = csv.writer(output)
             csv_writer.writerow(["word", "count", "fraction"])
             for word, count in counter.items():
-                csv_writer.writerow([word, count, 1.0 * count / total_count])
+                if count >= args.min:
+                    csv_writer.writerow([word, count, 1.0 * count / total_count])

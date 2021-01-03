@@ -104,6 +104,6 @@ if __name__ == "__main__":
             counter, total_count = parse(input)
             csv_writer = csv.writer(output)
             csv_writer.writerow(["word", "count", "fraction"])
-            for word, count in counter.items():
+            for word, count in counter.most_common():
                 if count >= args.min:
                     csv_writer.writerow([word, count, 1.0 * count / total_count])

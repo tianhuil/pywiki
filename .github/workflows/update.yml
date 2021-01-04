@@ -13,22 +13,22 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.8'
-    # - name: Cache pip
-    #   uses: actions/cache@v2
-    #   with:
-    #     # This path is specific to Ubuntu
-    #     path: |
-    #       ~/.cache/pip
-    #       env/
-    #     # Look to see if there is a cache hit for the corresponding requirements file
-    #     key: ${{ runner.os }}-pip2-${{ hashFiles('requirements.txt') }}
-    #     restore-keys: |
-    #       ${{ runner.os }}-pip2-
-    #       ${{ runner.os }}-
-    # - name: Install dependencies
-    #   run: make create-install
-    # - name: Run Job
-    #   run: source env/bin/activate && inv update
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: |
+          ~/.cache/pip
+          env/
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-pip2-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip2-
+          ${{ runner.os }}-
+    - name: Install dependencies
+      run: make create-install
+    - name: Run Job
+      run: source env/bin/activate && inv update
 
     - name: Pushes test file
       uses: dmnemec/copy_file_to_another_repo_action@v1.0.4
@@ -36,8 +36,7 @@ jobs:
         # This should only have access to API_TOKEN_GITHUB
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        # source_file: 'scratch/*.csv.gz'
-        source_file: 'README.md'
+        source_file: 'scratch/*.csv.gz'
         destination_repo: 'tianhuil/pywiki-data'
         destination_folder: 'wordcount/simplewiki'
         destination_branch: 'main'

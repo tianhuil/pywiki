@@ -26,5 +26,5 @@ jobs:
           ${{ runner.os }}-
     - name: Install dependencies
       run: make create-install
-    - name: Tes typing
+    - name: Test typing
       run: source env/bin/activate && mypy script/*

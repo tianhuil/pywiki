@@ -1,8 +1,8 @@
 name: Update
 
-on:
-  schedule:
-  - cron: "0 0 4 * *"
+on: [push]
+  # schedule:
+  # - cron: "0 0 4 * *"
 
 jobs:
   update:
@@ -30,7 +30,7 @@ jobs:
     - name: Install dependencies
       run: make create-install
     - name: Run Job
-      run: source env/bin/activate && inv update
+      run: source env/bin/activate && inv update --date 20201201
 
     - name: Pushes data
       uses: dmnemec/copy_file_to_another_repo_action@v1.0.4
@@ -38,7 +38,7 @@ jobs:
         # This should only have access to API_TOKEN_GITHUB
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        source_file: 'scratch/*.csv.gz'
+        source_file: 'scratch/*.csv*'
         destination_repo: 'tianhuil/pywiki-data'
         destination_folder: 'wordcount/simplewiki'
         destination_branch: 'main'

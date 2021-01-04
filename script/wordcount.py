@@ -60,21 +60,41 @@ def parse_filter_page(pages: Iterator[str]) -> Iterator[dict]:
         }
 
 
+def admin_link(node):
+    """
+    Returns if a link to something like "[[Category:car]]" but not "[[car]]"
+    """
+    if isinstance(node, mwparserfromhell.nodes.wikilink.Wikilink):
+        return ":" in node.title
+    return False
+
+
+def heading(node):
+    """
+    Returns if this is a heading
+    """
+    return isinstance(node, mwparserfromhell.nodes.heading.Heading)
+
+
 def parse_mw(iterator: Iterator[dict]) -> Iterator[str]:
     """
-    parse markdownwiki format and remove links to internal pages (e.g. "Category:X")
+    parse markdownwiki format.  Remove links to
+
+    - internal admin pages (e.g. "[[Category:X]]")
+    - headings (e.g. "===References===")
+
+    which generate vocabulary that throws off the count
     """
     for item in iterator:
         wikicode = mwparserfromhell.parse(item["text"])
-        for link in wikicode.ifilter_wikilinks():
-            if ":" in link.title:
-                # Sometimes, links are nested and the inner one cannot be latter removed:
-                # [[Image:Kawasaki-Electric Fan.jpg|thumb|A [[wikt:fan|fan]] is used to move air.]]
-                try:
-                    wikicode.remove(link)
-                except ValueError:
-                    pass
-        yield wikicode.strip_code()
+        new_wikicode = mwparserfromhell.wikicode.Wikicode(
+            [
+                node
+                for node in wikicode.ifilter(recursive=False)
+                if (not admin_link(node)) and (not heading(node))
+            ]
+        )
+        yield new_wikicode.strip_code()
 
 
 def parse_text(iter: Iterator[str]) -> Iterator[str]:

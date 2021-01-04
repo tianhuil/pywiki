@@ -27,4 +27,4 @@ jobs:
     - name: Install dependencies
       run: make create-install
     - name: Tes typing
-      run: mypy script/*
+      run: source env/bin/activate && mypy script/*

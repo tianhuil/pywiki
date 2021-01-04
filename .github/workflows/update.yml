@@ -40,6 +40,7 @@ jobs:
         source_file: 'README.md'
         destination_repo: 'tianhuil/pywiki-data'
         destination_folder: 'wordcount/simplewiki'
+        destination_branch: 'main'
         user_email: 'tianhuil@github.com'
         user_name: 'tianhuil'
         commit_message: 'Updating simplewiki word count'

@@ -17,8 +17,12 @@ def download(ctx, datestr=datestr):
 @task
 def wordcount(ctx, datestr=datestr):
     ctx.run(
-        "source env/bin/activate &&"
-        f"python script/wordcount.py -m 5 scratch/simplewiki-{datestr}.xml.bz2 scratch/simplewiki-count.csv.gz",
+        f"source env/bin/activate &&"
+        f"python script/wordcount.py"
+        f"  -m 5"
+        f"  -s"
+        f"  scratch/simplewiki-{datestr}.xml.bz2"
+        f"  scratch/simplewiki-count.csv.gz",
         echo=True,
     )
 

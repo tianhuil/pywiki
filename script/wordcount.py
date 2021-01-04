@@ -97,11 +97,15 @@ def aggregate_words(words: Iterator[str]) -> Tuple[Counter, int]:
 
 
 # from https://www.geeksforgeeks.org/function-composition-in-python/
-def composite_function(*func):
+def composite_function(*funcs):
+    """
+    compose
+    """
+
     def compose(f, g):
         return lambda x: f(g(x))
 
-    return reduce(compose, func, lambda x: x)
+    return reduce(compose, reversed([f for f in funcs if f]), lambda x: x)
 
 
 def parse_args(description: str):
@@ -114,23 +118,20 @@ def parse_args(description: str):
     parser.add_argument(
         "-m", "--min", type=int, default=0, help="minimum count exported"
     )
+    parser.add_argument("-s", "--silent", action="store_true", help="silence tqdm")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args("Parses wiki xml file")
     parse = composite_function(
-        *reversed(
-            [
-                lambda x: islice(x, args.limit),
-                parse_xml,
-                parse_filter_page,
-                tqdm,
-                parse_mw,
-                parse_text,
-                aggregate_words,
-            ]
-        )
+        lambda x: islice(x, args.limit),
+        parse_xml,
+        parse_filter_page,
+        tqdm if not args.silent else None,
+        parse_mw,
+        parse_text,
+        aggregate_words,
     )
     with smart_open(args.input_file, encoding="utf-8") as input:
         with smart_open(args.output_file, "w", encoding="utf-8") as output:

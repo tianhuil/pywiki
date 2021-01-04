@@ -1,6 +1,8 @@
 name: Update
 
-on: [push]
+on:
+  schedule:
+  - cron: "0 0 4 * *"
 
 jobs:
   update:
@@ -30,7 +32,7 @@ jobs:
     - name: Run Job
       run: source env/bin/activate && inv update
 
-    - name: Pushes test file
+    - name: Pushes data
       uses: dmnemec/copy_file_to_another_repo_action@v1.0.4
       env:
         # This should only have access to API_TOKEN_GITHUB

@@ -1,6 +1,9 @@
 # pywiki
 useful scripts for working with wikipedia dumps
 
+# Results
+The wordcounts are [stored here](https://github.com/tianhuil/pywiki-data/tree/main/wordcount/simplewiki).
+
 # Install and Setup
 To install, run
 ```

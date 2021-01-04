@@ -26,11 +26,32 @@ def parse_xml(lines: Iterator[str]) -> Iterator[str]:
             yield memory
 
 
-def parse_page(pages: Iterator[str]) -> Iterator[dict]:
+def parse_filter_page(pages: Iterator[str]) -> Iterator[dict]:
+    """
+    Parse page and ignore all administrative articles like
+
+    - "User:SimonMayer"
+    - "Talk:Wiki"
+    - "User talk:Sikilai"
+    - "Wikipedia:Image use policy"
+    - "MediaWiki:Googlesearch"
+    - "MediaWiki talk:Prefslogintext"
+    - "Wikipedia talk:Copyrights"
+    - "Template:Stub"
+
+    Since there are so many types of articles, we choose to just ignore titles
+    containing ":", accepting that we may occasionally over filter rather, rather
+    than specifying all the administrative types.
+    """
     for page in pages:
         tree = etree.parse(StringIO(page))
+        title = tree.xpath("/page/title")[0].text
+
+        if ":" in title:
+            continue
+
         yield {
-            "title": tree.xpath("/page/title")[0].text,
+            "title": title,
             "id": tree.xpath("/page/id")[0].text,
             "timestamp": tree.xpath("/page/revision/timestamp")[0].text,
             "model": tree.xpath("/page/revision/model")[0].text,
@@ -39,9 +60,21 @@ def parse_page(pages: Iterator[str]) -> Iterator[dict]:
         }
 
 
-def parse_md(iterator: Iterator[dict]) -> Iterator[str]:
+def parse_mw(iterator: Iterator[dict]) -> Iterator[str]:
+    """
+    parse markdownwiki format and remove links to internal pages (e.g. "Category:X")
+    """
     for item in iterator:
-        yield mwparserfromhell.parse(item["text"]).strip_code()
+        wikicode = mwparserfromhell.parse(item["text"])
+        for link in wikicode.ifilter_wikilinks():
+            if ":" in link.title:
+                # Sometimes, links are nested and the inner one cannot be latter removed:
+                # [[Image:Kawasaki-Electric Fan.jpg|thumb|A [[wikt:fan|fan]] is used to move air.]]
+                try:
+                    wikicode.remove(link)
+                except ValueError:
+                    pass
+        yield wikicode.strip_code()
 
 
 def parse_text(iter: Iterator[str]) -> Iterator[str]:
@@ -50,7 +83,7 @@ def parse_text(iter: Iterator[str]) -> Iterator[str]:
             yield word.lower()
 
 
-RE_WORD = re.compile(r"\w+")
+RE_WORD = re.compile(r"[\w']+")
 
 
 def aggregate_words(words: Iterator[str]) -> Counter:
@@ -91,9 +124,9 @@ if __name__ == "__main__":
             [
                 lambda x: islice(x, args.limit),
                 parse_xml,
-                parse_page,
+                parse_filter_page,
                 tqdm,
-                parse_md,
+                parse_mw,
                 parse_text,
                 aggregate_words,
             ]

@@ -30,7 +30,7 @@ jobs:
     - name: Install dependencies
       run: make create-install
     - name: Run Job
-      run: source env/bin/activate && inv update --date 20201001
+      run: source env/bin/activate && inv update --date 20200901
 
     - name: Pushes data
       uses: dmnemec/copy_file_to_another_repo_action@v1.0.4

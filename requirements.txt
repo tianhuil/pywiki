@@ -3,7 +3,7 @@ wheel
 
 # interactive Python
 ipykernel==5.3.4
-ipython==7.16.1
+ipython==7.19.0
 jupyter==1.0.0
 
 # utilities

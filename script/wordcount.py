@@ -2,10 +2,10 @@ import argparse
 import csv
 import re
 from collections import Counter
-from functools import partial, reduce
+from functools import reduce
 from io import StringIO
 from itertools import islice
-from typing import Iterator
+from typing import Iterator, Tuple
 
 import mwparserfromhell
 from lxml import etree
@@ -86,8 +86,8 @@ def parse_text(iter: Iterator[str]) -> Iterator[str]:
 RE_WORD = re.compile(r"[\w']+")
 
 
-def aggregate_words(words: Iterator[str]) -> Counter:
-    counter = Counter()
+def aggregate_words(words: Iterator[str]) -> Tuple[Counter, int]:
+    counter: Counter = Counter()
     count = 0
     for word in words:
         counter[word] += 1

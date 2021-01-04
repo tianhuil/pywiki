@@ -2,8 +2,10 @@ from datetime import datetime, timedelta
 
 from invoke import task
 
-# look 2 days ago as the data always exists then
-datestr = (datetime.utcnow() - timedelta(days=2)).strftime("%Y%m%d")
+# wikipedia appears to be dumped on the 1st and 20th of each month
+# we will pull the dump from the 1st
+now = datetime.utcnow()
+datestr = now.replace(day=1).strftime("%Y%m%d")
 
 
 @task

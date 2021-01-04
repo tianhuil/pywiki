@@ -22,7 +22,7 @@ def wordcount(ctx, date=first_of_month):
         f"  -m 5"
         f"  -s"
         f"  scratch/simplewiki-{date}.xml.bz2"
-        f"  scratch/simplewiki-count.csv.gz",
+        f"  scratch/simplewiki-count-{date}.csv.gz",
         echo=True,
     )
 
